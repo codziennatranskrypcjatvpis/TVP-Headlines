@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+import os
+import sys
 import cv2
 import numpy as np
 import pytesseract
@@ -47,53 +49,20 @@ def tvp_headlines_mp4(input_video_path, output_headlines_path):
 
     headlines = []
     frame_count = 0
-    last_headline_frame = 0
-    headline_animation_start_frame = 0
-    has_headline_animation_count_started = False
-    do_ocr = False
-    SECONDS_TO_SKIP_AFTER_LAST_HEADLINE = 20
-    HEADLINE_ANIMATION_SECONDS = 2
 
     while True:
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Skip ocr if last headline was seen 20s ago
-        if frames_to_seconds(fps, frame_count - last_headline_frame) > SECONDS_TO_SKIP_AFTER_LAST_HEADLINE:
-
-            # Wait for headline animation to end (2S)
-            if frames_to_seconds(fps, frame_count - headline_animation_start_frame) > HEADLINE_ANIMATION_SECONDS and has_headline_animation_count_started:
-                do_ocr = True
-
-            # Extract headline with ocr
-            headline_img, headline, headline_like_frame_detected = extract_headline(frame, do_ocr)
-
-            # If extract_headline stopped detecting headline-like frames then stop animation counters (headline-like frames must be detected every frame for at least 2 seconds)
-            if has_headline_animation_count_started and not headline_like_frame_detected:
-                has_headline_animation_count_started = False
-
-            # If headline-like frame was detected and animation counter hasn't started yet then start it
-            if headline_like_frame_detected and not has_headline_animation_count_started:
-                has_headline_animation_count_started = True
-                headline_animation_start_frame = frame_count
+        headline_img, headline, headline_like_frame_detected = extract_headline(frame, true)
 
             # Save headline, reset counters
-            if headline != '':
-                print('Frame:', frame_count, 'Headline:', headline)
-                last_headline_frame = frame_count
-                headlines.append(headline)
-                do_ocr = False
-                has_headline_animation_count_started = False
-                headline_animation_start_frame = 0
+        if headline != '':
+            print('Frame:', frame_count, 'Headline:', headline)
+            headlines.append(headline)
 
-                save_headline(headline, output_headlines_path)
-
-        time_elapsed = frames_to_seconds(fps, frame_count)
-        last_headline_elapsed = frames_to_seconds(fps, frame_count - last_headline_frame)
-        animation_time_elapsed = 0 if headline_animation_start_frame == 0 else frames_to_seconds(fps, frame_count - headline_animation_start_frame)
-
-        frame_count += 1
+            save_headline(headline, output_headlines_path)
 
         c = cv2.waitKey(1)
         if c & 0xFF == ord('q'):
