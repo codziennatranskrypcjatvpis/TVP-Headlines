@@ -55,7 +55,7 @@ def tvp_headlines_mp4(input_video_path, output_headlines_path):
         if not ret:
             break
 
-        headline_img, headline, headline_like_frame_detected = extract_headline(frame, true)
+        headline_img, headline, headline_like_frame_detected = extract_headline(frame, True)
 
             # Save headline, reset counters
         if headline != '':
