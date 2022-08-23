@@ -8,8 +8,8 @@ pytesseract.pytesseract.tesseract_cmd = 'tesseract'
 print(pytesseract.get_languages(config=''))
 
 HEADLINE_AVG_COLOR = (129.5148472, 62.9367192, 53.23520085)  # BGR
-os.system('ffmpeg -y -i ' + sys.argv[1] + '-an -vf "crop=1448:130:327:832" 2.' + sys.argv[1])
-os.system('ffmpeg -y -i 2.' + sys.argv[1] + '-vf mpdecimate,setpts=N/FRAME_RATE/TB ' + sys.argv[1])
+os.system('ffmpeg -y -i ' + sys.argv[1] + ' -an -vf "crop=1448:130:327:832" 2.' + sys.argv[1])
+os.system('ffmpeg -y -i 2.' + sys.argv[1] + ' -vf mpdecimate,setpts=N/FRAME_RATE/TB ' + sys.argv[1])
 
 def extract_headline(frame, do_ocr):
     """Extract headline from a single frame"""
